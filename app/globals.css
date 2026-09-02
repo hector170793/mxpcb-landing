@@ -307,7 +307,8 @@ h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.1em;height:.14
   padding:clamp(64px,7vw,104px) 0}
 .cta .traces path{stroke:#fff;stroke-opacity:.14}
 .cta-grid{position:relative;z-index:1;display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,.72fr);gap:clamp(32px,4vw,64px);align-items:center}
+  grid-template-columns:minmax(0,.85fr) minmax(0,.62fr) minmax(0,1.1fr);
+  gap:clamp(28px,3.4vw,56px);align-items:start}
 .cta h2{color:#fff;font-size:clamp(28px,3.4vw,48px);margin-top:20px}
 .cta p{color:rgba(255,255,255,.66);margin-top:20px;font-size:17px;max-width:44ch}
 .contact{display:flex;flex-direction:column}
@@ -319,6 +320,35 @@ h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.1em;height:.14
 .contact .cv{font-size:16.5px;font-weight:500;margin-top:4px;display:block;line-height:1.35}
 .contact .arw{color:var(--accent-soft,#F69C61);transition:transform .3s;flex:0 0 auto}
 .contact a:hover .arw{transform:translateX(5px)}
+
+/* ---------- contact form ---------- */
+.contact-form{background:var(--surface);color:var(--ink);border:1px solid var(--line);
+  border-radius:3px;padding:clamp(26px,2.6vw,34px);
+  box-shadow:0 24px 48px -34px rgba(20,35,43,.35)}
+.contact-form h3{margin-top:8px;font-size:21px}
+.contact-form>p{color:var(--muted);margin-top:8px;font-size:15px}
+.form-alert{margin-top:18px;padding:14px 16px;border-radius:2px;
+  background:#FCEBE9;border:1px solid #E4A199;color:#7A241C;font-size:14.5px;line-height:1.5}
+.form-alert a{color:#7A241C;text-decoration:underline}
+.contact-form form{margin-top:20px;display:flex;flex-direction:column;gap:18px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--navy)}
+.field input[type="text"],.field input[type="email"],.field textarea{
+  font:inherit;font-size:15.5px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:2px;padding:14px 16px;min-height:52px;
+  transition:border-color .22s,box-shadow .22s}
+.field textarea{min-height:120px;resize:vertical;line-height:1.55}
+.field input:focus-visible,.field textarea:focus-visible{
+  outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,75,.16)}
+.field input[aria-invalid="true"],.field textarea[aria-invalid="true"]{border-color:#C4453A}
+.field-error{font-size:13px;color:#C4453A}
+.field-consent label{display:flex;align-items:flex-start;gap:10px;font-size:14px;
+  color:var(--muted);min-height:44px;cursor:pointer}
+.field-consent input{width:20px;height:20px;flex:0 0 auto;margin-top:2px;accent-color:var(--accent)}
+.field-consent a{color:var(--accent-ink,#AD4500)}
+.cf-turnstile{min-height:65px}
+.contact-form .btn{align-self:flex-start;min-height:52px}
+.contact-form .btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
 
 /* ---------- footer ---------- */
 .ftr{background:var(--navy);color:rgba(255,255,255,.72);padding:56px 0 40px;font-size:14px}
@@ -361,4 +391,12 @@ h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.1em;height:.14
   .ftr-logo img{height:19px}
   .ftr-nav{gap:18px}
   .ftr-bot{padding-top:24px}
+}
+
+/* ---------- PR4 responsive ---------- */
+@media (max-width:760px){
+  .contact-form{padding:22px 20px}
+  .contact-form h3{font-size:19px}
+  .contact-form form{margin-top:16px;gap:16px}
+  .field input[type="text"],.field input[type="email"],.field textarea{font-size:16px}
 }
