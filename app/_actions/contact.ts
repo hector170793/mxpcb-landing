@@ -12,10 +12,12 @@ import { Resend } from "resend";
 
 export type ContactFieldName =
   | "nombre"
+  | "empresa"
   | "correo"
   | "comentarios"
   | "consent"
-  | "turnstile";
+  | "turnstile"
+  | "attachment";
 
 export type ContactState =
   | { status: "idle" }
@@ -43,12 +45,98 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const TURNSTILE_VERIFY_URL =
   "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
+// Vercel caps server-side Server Action request bodies at 4.5MB regardless
+// of Next's own `serverActions.bodySizeLimit` (verified, plugins/cache/
+// claude-plugins-official/vercel/0.43.0/skills/next-forge/references/
+// packages.md:148). This 4MB figure is the enforced, user-facing cap --
+// it leaves headroom under Vercel's hard ceiling for the other form fields
+// and multipart overhead. Do not raise it without also revisiting the
+// Vercel limit.
+const MAX_ATTACHMENT_BYTES = 4 * 1024 * 1024;
+
+// Extension and MIME type are both attacker-controlled (a direct POST can
+// set either to anything). They are cheap first filters, not proof of
+// content; the magic-byte check below is the actual content verification.
+const ALLOWED_ZIP_MIME_TYPES = new Set([
+  "application/zip",
+  "application/x-zip-compressed",
+  "application/octet-stream",
+]);
+
 function readString(value: FormDataEntryValue | null): string {
   // A malicious or malformed direct POST can send a file part for any field
   // name; FormData.get() then returns a File instead of a string. Treat
   // anything that isn't a plain string as empty rather than letting it
   // through validation as some Object-coerced value.
   return typeof value === "string" ? value.trim() : "";
+}
+
+// A real ZIP file starts with the local-file-header signature `PK\x03\x04`,
+// or `PK\x05\x06` for an empty archive (end-of-central-directory record with
+// no entries). Checking these bytes is the only check in this file that
+// verifies actual file content rather than attacker-supplied metadata.
+function hasZipMagicBytes(bytes: Buffer): boolean {
+  if (bytes.length < 4) return false;
+  const isStandardZip =
+    bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
+  const isEmptyZip =
+    bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x05 && bytes[3] === 0x06;
+  return isStandardZip || isEmptyZip;
+}
+
+type AttachmentValidation =
+  | { ok: true; file: { filename: string; buffer: Buffer; contentType: string } | null }
+  | { ok: false; error: string };
+
+// The attachment is optional: an untouched `<input type="file">` submits as
+// an empty File (size 0, name ""), which must pass through as "no file",
+// not an error.
+async function readAttachment(
+  entry: FormDataEntryValue | null,
+): Promise<AttachmentValidation> {
+  if (entry === null) return { ok: true, file: null };
+
+  if (!(entry instanceof File)) {
+    // A direct POST bypassing the UI can send a plain string under this
+    // field name instead of a real file part.
+    return { ok: false, error: "El archivo adjunto no es válido." };
+  }
+
+  // An untouched `<input type="file">` still submits a File entry. Verified
+  // live (not documented anywhere): through Next's Server Action dispatch
+  // this empty File arrives server-side with size 0 but name "blob" and
+  // type "application/octet-stream" -- NOT name "" like a plain HTML form
+  // POST would give. Checking size alone is correct either way: a genuine
+  // 0-byte upload can never be a valid non-empty ZIP entry, so there is no
+  // legitimate case this excludes.
+  if (entry.size === 0) {
+    return { ok: true, file: null };
+  }
+
+  if (entry.size > MAX_ATTACHMENT_BYTES) {
+    return { ok: false, error: "El archivo no debe superar 4 MB." };
+  }
+
+  if (!entry.name.toLowerCase().endsWith(".zip")) {
+    return { ok: false, error: "El archivo debe ser un .zip." };
+  }
+
+  if (!ALLOWED_ZIP_MIME_TYPES.has(entry.type)) {
+    return { ok: false, error: "El archivo debe ser un .zip." };
+  }
+
+  const buffer = Buffer.from(await entry.arrayBuffer());
+  if (!hasZipMagicBytes(buffer)) {
+    return {
+      ok: false,
+      error: "El archivo parece dañado o no es un ZIP válido.",
+    };
+  }
+
+  return {
+    ok: true,
+    file: { filename: entry.name, buffer, contentType: "application/zip" },
+  };
 }
 
 async function verifyTurnstileToken(
@@ -102,15 +190,22 @@ export async function submitContact(
   formData: FormData,
 ): Promise<ContactState> {
   const nombre = readString(formData.get("nombre"));
+  const empresa = readString(formData.get("empresa"));
   const correo = readString(formData.get("correo"));
   const comentarios = readString(formData.get("comentarios"));
   const consent = readString(formData.get("consent"));
   const turnstileToken = readString(formData.get("cf-turnstile-response"));
+  const attachmentResult = await readAttachment(formData.get("attachment"));
 
   const fieldErrors: Partial<Record<ContactFieldName, string>> = {};
 
   if (nombre.length < 2 || nombre.length > 80) {
     fieldErrors.nombre = "Escribe tu nombre completo (2 a 80 caracteres).";
+  }
+  // Optional: an empty value is valid. Only a value that is present and
+  // over-long is an error -- a direct POST can still send an unbounded string.
+  if (empresa.length > 120) {
+    fieldErrors.empresa = "El nombre de la empresa no debe superar 120 caracteres.";
   }
   if (correo.length === 0 || correo.length > 120 || !EMAIL_RE.test(correo)) {
     fieldErrors.correo = "Escribe un correo electrónico válido.";
@@ -122,6 +217,9 @@ export async function submitContact(
   if (consent !== "on") {
     fieldErrors.consent =
       "Debes aceptar el aviso de privacidad para continuar.";
+  }
+  if (!attachmentResult.ok) {
+    fieldErrors.attachment = attachmentResult.error;
   }
 
   if (Object.keys(fieldErrors).length > 0) {
@@ -168,6 +266,10 @@ export async function submitContact(
     };
   }
 
+  // At this point fieldErrors is empty, so attachmentResult.ok is guaranteed
+  // true (an attachment error above would already have returned).
+  const attachmentFile = attachmentResult.ok ? attachmentResult.file : null;
+
   try {
     const resend = new Resend(resendApiKey);
     const { error } = await resend.emails.send({
@@ -175,7 +277,32 @@ export async function submitContact(
       to: toEmail,
       replyTo: correo,
       subject: `Nuevo contacto desde mexicopcb.com — ${nombre}`,
-      text: `Nombre: ${nombre}\nCorreo: ${correo}\n\nComentarios:\n${comentarios}`,
+      text: [
+        `Nombre: ${nombre}`,
+        empresa ? `Empresa: ${empresa}` : null,
+        `Correo: ${correo}`,
+        "",
+        "Comentarios:",
+        comentarios,
+      ]
+        .filter((line) => line !== null)
+        .join("\n"),
+      // resend@6.x `Attachment` (node_modules/resend/dist/index.d.mts):
+      // `content?: string | Buffer`, `filename?: string`, `contentType?`.
+      // contentType is set explicitly to the verified type rather than
+      // trusting the browser-supplied MIME the validation above already
+      // treated as untrusted.
+      ...(attachmentFile
+        ? {
+            attachments: [
+              {
+                filename: attachmentFile.filename,
+                content: attachmentFile.buffer,
+                contentType: attachmentFile.contentType,
+              },
+            ],
+          }
+        : {}),
     });
 
     if (error) {
