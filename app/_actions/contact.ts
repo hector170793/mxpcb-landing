@@ -12,6 +12,7 @@ import { Resend } from "resend";
 
 export type ContactFieldName =
   | "nombre"
+  | "empresa"
   | "correo"
   | "comentarios"
   | "consent"
@@ -189,6 +190,7 @@ export async function submitContact(
   formData: FormData,
 ): Promise<ContactState> {
   const nombre = readString(formData.get("nombre"));
+  const empresa = readString(formData.get("empresa"));
   const correo = readString(formData.get("correo"));
   const comentarios = readString(formData.get("comentarios"));
   const consent = readString(formData.get("consent"));
@@ -199,6 +201,11 @@ export async function submitContact(
 
   if (nombre.length < 2 || nombre.length > 80) {
     fieldErrors.nombre = "Escribe tu nombre completo (2 a 80 caracteres).";
+  }
+  // Optional: an empty value is valid. Only a value that is present and
+  // over-long is an error -- a direct POST can still send an unbounded string.
+  if (empresa.length > 120) {
+    fieldErrors.empresa = "El nombre de la empresa no debe superar 120 caracteres.";
   }
   if (correo.length === 0 || correo.length > 120 || !EMAIL_RE.test(correo)) {
     fieldErrors.correo = "Escribe un correo electrónico válido.";
@@ -270,7 +277,16 @@ export async function submitContact(
       to: toEmail,
       replyTo: correo,
       subject: `Nuevo contacto desde mexicopcb.com — ${nombre}`,
-      text: `Nombre: ${nombre}\nCorreo: ${correo}\n\nComentarios:\n${comentarios}`,
+      text: [
+        `Nombre: ${nombre}`,
+        empresa ? `Empresa: ${empresa}` : null,
+        `Correo: ${correo}`,
+        "",
+        "Comentarios:",
+        comentarios,
+      ]
+        .filter((line) => line !== null)
+        .join("\n"),
       // resend@6.x `Attachment` (node_modules/resend/dist/index.d.mts):
       // `content?: string | Buffer`, `filename?: string`, `contentType?`.
       // contentType is set explicitly to the verified type rather than
