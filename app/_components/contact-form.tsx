@@ -55,6 +55,49 @@ export function ContactForm() {
   const successRef = useRef<HTMLHeadingElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Turnstile pulls ~550KB (api.js plus the challenge document and its XHRs) --
+  // more than the rest of the page combined. The form sits at the very bottom,
+  // so loading it eagerly spends a mobile visitor's bandwidth on a widget most
+  // of them never reach, delaying fonts and the LCP image on a saturated
+  // connection. Arm it when the card approaches the viewport, or as soon as
+  // anything inside it receives focus, so a keyboard user tabbing straight
+  // down is not left waiting.
+  const [turnstileArmed, setTurnstileArmed] = useState(false);
+
+  useEffect(() => {
+    if (turnstileArmed) return;
+    const card = cardRef.current;
+    if (!card) return;
+
+    const arm = () => setTurnstileArmed(true);
+    card.addEventListener("focusin", arm, { once: true });
+
+    if (typeof IntersectionObserver === "undefined") {
+      // No observer: load immediately rather than leave the widget missing.
+      arm();
+      return () => card.removeEventListener("focusin", arm);
+    }
+
+    // 600px of lead time: the script is fetching while the visitor is still
+    // reading the section above, so it is ready by the time they type.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          observer.disconnect();
+          arm();
+        }
+      },
+      { rootMargin: "600px" },
+    );
+    observer.observe(card);
+
+    return () => {
+      observer.disconnect();
+      card.removeEventListener("focusin", arm);
+    };
+  }, [turnstileArmed]);
 
   const [selectedFile, setSelectedFile] = useState<{ name: string; size: number } | null>(
     null,
@@ -118,8 +161,8 @@ export function ContactForm() {
   }
 
   return (
-    <div className="contact-form">
-      {TURNSTILE_SITE_KEY ? (
+    <div className="contact-form" ref={cardRef}>
+      {TURNSTILE_SITE_KEY && turnstileArmed ? (
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js"
           strategy="afterInteractive"
