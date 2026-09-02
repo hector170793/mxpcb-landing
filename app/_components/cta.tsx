@@ -1,3 +1,5 @@
+import { ContactForm } from "./contact-form";
+
 const CONTACT_LINKS = [
   {
     href: "mailto:contacto@mexicopcb.com",
@@ -42,7 +44,7 @@ export function Cta() {
         <div className="rv">
           <p className="eyebrow mono">Contacto</p>
           <h2>Ponte en contacto con nosotros</h2>
-          <p>
+          <p className="cta-lead">
             Un especialista te contactará para platicar sobre tus requerimientos. Envíanos
             tus archivos o descríbenos la idea.
           </p>
@@ -58,7 +60,9 @@ export function Cta() {
             </a>
           ))}
         </div>
-        {/* ContactForm ('use client', spec: contact-lead-capture) wires in here in PR4. */}
+        <div className="rv">
+          <ContactForm />
+        </div>
       </div>
     </section>
   );
