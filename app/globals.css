@@ -342,6 +342,13 @@ h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.1em;height:.14
   outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,75,.16)}
 .field input[aria-invalid="true"],.field textarea[aria-invalid="true"]{border-color:#C4453A}
 .field-error{font-size:13px;color:#C4453A}
+/* `.cta p` is (0,0,1,1) and reaches into the white form card, where the
+   section's white paragraph colour renders the error text invisible against
+   the surface (measured 1.00:1). Anything inside the card belongs to the
+   light-surface palette, so re-assert it above the section rule rather than
+   patching one element at a time. */
+.cta .contact-form p{color:var(--muted)}
+.cta .contact-form .field-error{color:#C4453A}
 .field-consent label{display:flex;align-items:flex-start;gap:10px;font-size:14px;
   color:var(--muted);min-height:44px;cursor:pointer}
 .field-consent input{width:20px;height:20px;flex:0 0 auto;margin-top:2px;accent-color:var(--accent)}
