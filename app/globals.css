@@ -7,6 +7,13 @@
   --accent-ink:#AD4500;
   --accent-soft:#F69C61;
   --accent-hover:#D95400;
+  /* Interactive surfaces filled with the accent carry white TEXT, which needs
+     4.5:1. Brand #F06000 gives 3.29:1, so those surfaces use a deeper shade
+     while --accent stays exactly the brand colour for every mark, dot, rule
+     and icon fill. Hover goes darker, not lighter -- lightening would leave a
+     button that passes at rest and fails the moment it is hovered. */
+  --accent-btn:#BF4D00;
+  --accent-btn-hover:#A83E00;
   background:var(--bg); color:var(--ink);
   font-family:var(--font-archivo),'Helvetica Neue',Arial,sans-serif;
   font-size:17px; line-height:1.65; letter-spacing:-.005em;
@@ -81,8 +88,8 @@
   transition:background .26s,color .26s,border-color .26s,transform .26s,box-shadow .26s}
 .btn .arw{transition:transform .3s cubic-bezier(.2,.7,.2,1)}
 .btn:hover .arw{transform:translateX(5px)}
-.btn-p{background:var(--accent);color:#fff}
-.btn-p:hover{background:var(--accent-hover);color:#fff;transform:translateY(-2px);
+.btn-p{background:var(--accent-btn);color:#fff}
+.btn-p:hover{background:var(--accent-btn-hover);color:#fff;transform:translateY(-2px);
   box-shadow:0 12px 26px -10px rgba(240,96,0,.6)}
 .btn-s{border-color:#D2CCC4;color:var(--navy)}
 .btn-s:hover{border-color:var(--navy);background:var(--navy);color:#fff;transform:translateY(-2px)}
@@ -225,7 +232,7 @@ h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.1em;height:.14
 .card:hover::after{transform:scaleX(1)}
 .icn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;
   background:var(--tint);border-radius:2px;color:var(--accent-ink,#AD4500);transition:background .3s,color .3s}
-.card:hover .icn{background:var(--accent);color:#fff}
+.card:hover .icn{background:var(--accent-btn);color:#fff}
 .card h3{font-size:18.5px;margin-top:22px}
 .card p{font-size:15px;color:var(--muted);margin-top:11px;line-height:1.6}
 .hint{display:none;align-items:center;gap:8px;padding:6px 0 0;font-size:10.5px;
@@ -298,7 +305,7 @@ h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.1em;height:.14
 .num{flex:0 0 auto;width:35px;height:35px;border:1px solid var(--line);border-radius:50%;
   display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--navy);
   background:var(--surface);transition:background .3s,color .3s,border-color .3s;z-index:1}
-.step:hover .num{background:var(--accent);color:#fff;border-color:var(--accent)}
+.step:hover .num{background:var(--accent-btn);color:#fff;border-color:var(--accent-btn)}
 .step b{display:block;font-size:16px;font-weight:600;color:var(--navy)}
 .step p{font-size:14.5px;color:var(--muted);margin-top:5px;line-height:1.55}
 
@@ -470,8 +477,10 @@ h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.1em;height:.14
 .legal-copyright{margin-top:16px;color:var(--muted);font-size:13.5px}
 
 /* ---------- 404 ---------- */
+/* Fill the viewport below the 76px sticky header: a short 404 otherwise
+   leaves a bare white band under the page background. */
 .not-found{max-width:640px;padding-top:clamp(64px,9vw,120px);
-  padding-bottom:clamp(72px,9vw,132px)}
+  padding-bottom:clamp(72px,9vw,132px);min-height:calc(100vh - 76px)}
 .not-found h1{font-size:clamp(30px,4vw,42px);margin-top:14px}
 .not-found-actions{display:flex;flex-wrap:wrap;gap:16px;margin-top:32px}
 
