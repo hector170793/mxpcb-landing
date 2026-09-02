@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import logo from "../../public/brand/mxpcb-logo.png";
 import { NAV_LINKS } from "../_data/nav";
 
@@ -28,6 +29,7 @@ export function Footer() {
         </div>
         <div className="ftr-bot">
           <span>© 2026 MXPCB — México PCB. Todos los derechos reservados.</span>
+          <Link href="/aviso-de-privacidad">Aviso de privacidad</Link>
           <span className="mono" style={{ letterSpacing: "0.1em" }}>
             IPC-A-610 · J-STD-001
           </span>
