@@ -1,11 +1,29 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef } from "react";
+import {
+  useActionState,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from "react";
 import Script from "next/script";
 import { submitContact, type ContactState } from "../_actions/contact";
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 const INITIAL_STATE: ContactState = { status: "idle" };
+
+// UX convenience only -- mirrors the server's real limit
+// (app/_actions/contact.ts, MAX_ATTACHMENT_BYTES) so the user sees a
+// same-shape message before submitting, but the server enforces it
+// regardless of what runs here.
+const MAX_ATTACHMENT_BYTES = 4 * 1024 * 1024;
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 const FALLBACK_CHANNELS = (
   <>
@@ -26,14 +44,51 @@ export function ContactForm() {
   );
 
   const formTitleId = useId();
+  const attachmentHintId = useId();
   const successRef = useRef<HTMLHeadingElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [selectedFile, setSelectedFile] = useState<{ name: string; size: number } | null>(
+    null,
+  );
+  const [clientAttachmentWarning, setClientAttachmentWarning] = useState<string | null>(
+    null,
+  );
 
   const nombreError = fieldError(state, "nombre");
   const correoError = fieldError(state, "correo");
   const comentariosError = fieldError(state, "comentarios");
   const consentError = state.status === "error" ? state.fieldErrors?.consent : undefined;
   const turnstileError = state.status === "error" ? state.fieldErrors?.turnstile : undefined;
+  const serverAttachmentError =
+    state.status === "error" ? state.fieldErrors?.attachment : undefined;
+  const attachmentError = serverAttachmentError ?? clientAttachmentWarning ?? undefined;
+
+  function handleAttachmentChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setSelectedFile(null);
+      setClientAttachmentWarning(null);
+      return;
+    }
+
+    setSelectedFile({ name: file.name, size: file.size });
+
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      setClientAttachmentWarning("El archivo no debe superar 4 MB.");
+    } else if (!file.name.toLowerCase().endsWith(".zip")) {
+      setClientAttachmentWarning("El archivo debe ser un .zip.");
+    } else {
+      setClientAttachmentWarning(null);
+    }
+  }
+
+  function clearAttachment() {
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setSelectedFile(null);
+    setClientAttachmentWarning(null);
+  }
 
   useEffect(() => {
     if (state.status === "success") successRef.current?.focus();
@@ -131,6 +186,64 @@ export function ContactForm() {
           {comentariosError ? (
             <p className="field-error" id="comentarios-error">
               {comentariosError}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="field field-file">
+          <label htmlFor="attachment-trigger">Archivo adjunto (opcional)</label>
+          <div className="file-picker">
+            {/* The real <input type="file"> stays in the DOM for form
+                submission but is not part of the tab order or the a11y
+                tree: `attachment-trigger` below is the single focusable,
+                keyboard-operable control for this field, matching how the
+                other fields expose exactly one interactive element each. */}
+            <input
+              ref={fileInputRef}
+              id="attachment"
+              name="attachment"
+              type="file"
+              accept=".zip"
+              className="file-input"
+              tabIndex={-1}
+              aria-hidden="true"
+              onChange={handleAttachmentChange}
+            />
+            <button
+              type="button"
+              id="attachment-trigger"
+              className="btn btn-s file-picker-btn"
+              onClick={() => fileInputRef.current?.click()}
+              aria-describedby={
+                attachmentError
+                  ? `${attachmentHintId} attachment-error`
+                  : attachmentHintId
+              }
+            >
+              Elegir archivo
+            </button>
+            <span className="file-status">
+              {selectedFile
+                ? `${selectedFile.name} · ${formatFileSize(selectedFile.size)}`
+                : "Sin archivo seleccionado"}
+            </span>
+            {selectedFile ? (
+              <button
+                type="button"
+                className="file-clear"
+                onClick={clearAttachment}
+                aria-label="Quitar archivo adjunto"
+              >
+                ✕
+              </button>
+            ) : null}
+          </div>
+          <p id={attachmentHintId} className="field-hint">
+            Gerbers, BOM o Pick&amp;Place en un .zip de hasta 4 MB.
+          </p>
+          {attachmentError ? (
+            <p className="field-error" id="attachment-error">
+              {attachmentError}
             </p>
           ) : null}
         </div>
