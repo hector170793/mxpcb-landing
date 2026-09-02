@@ -102,7 +102,7 @@ export function ContactForm() {
         <h3 tabIndex={-1} ref={successRef}>
           Gracias, recibimos tu mensaje
         </h3>
-        <p>
+        <p className="form-lead">
           Un especialista revisará tu solicitud y te contactará a la brevedad.
         </p>
       </div>

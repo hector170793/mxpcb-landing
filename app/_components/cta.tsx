@@ -44,7 +44,7 @@ export function Cta() {
         <div className="rv">
           <p className="eyebrow mono">Contacto</p>
           <h2>Ponte en contacto con nosotros</h2>
-          <p>
+          <p className="cta-lead">
             Un especialista te contactará para platicar sobre tus requerimientos. Envíanos
             tus archivos o descríbenos la idea.
           </p>
