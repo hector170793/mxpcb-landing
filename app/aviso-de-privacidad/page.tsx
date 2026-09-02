@@ -3,10 +3,36 @@ import Image from "next/image";
 import Link from "next/link";
 import logo from "../../public/brand/mxpcb-logo.png";
 
+const title = "Aviso de Privacidad — MXPCB";
+const description =
+  "Aviso de privacidad de MXPCB conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP): datos que recabamos, finalidades, transferencias, derechos ARCO y uso de cookies de Google Ads y Google Analytics.";
+
 export const metadata: Metadata = {
-  title: "Aviso de Privacidad — MXPCB",
-  description:
-    "Aviso de privacidad de MXPCB conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP): datos que recabamos, finalidades, transferencias, derechos ARCO y uso de cookies de Google Ads y Google Analytics.",
+  title,
+  description,
+  alternates: {
+    canonical: "/aviso-de-privacidad",
+  },
+  openGraph: {
+    title,
+    description,
+    url: "/aviso-de-privacidad",
+    type: "website",
+    // The root `app/opengraph-image.tsx` file convention only generates
+    // og:image tags for the segment it's defined in (the site root).
+    // This page defines its own `openGraph` object, which replaces --
+    // rather than merges with -- the parent's resolved openGraph fields
+    // (node_modules/next/dist/docs/01-app/03-api-reference/04-functions/
+    // generate-metadata.md, section "Overwriting fields"), so the shared
+    // image is referenced explicitly here to keep it on this page too.
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: ["/opengraph-image"],
+  },
 };
 
 // Legal text below is carried verbatim from the client-supplied source

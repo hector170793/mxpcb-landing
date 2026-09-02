@@ -8,7 +8,10 @@ export function Header() {
     <header className="hdr">
       <div className="wrap">
         <a href="#top">
-          <Image className="brand" src={logo} alt="MXPCB" priority />
+          {/* Explicit display size so next/image serves a ~165w variant instead of
+           the 1024w intrinsic. It is the LCP element; the source renders at 23px
+           tall, so shipping the full-size asset was pure waste. */}
+          <Image className="brand" src={logo} alt="MXPCB" width={165} height={23} priority />
         </a>
         <nav className="nav">
           {NAV_LINKS.map((link) => (
