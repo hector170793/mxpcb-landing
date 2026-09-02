@@ -37,9 +37,20 @@
         animation-timeline:view();animation-range:entry 4% cover 24%}
   }
 }
+/* Reduced-motion kill-switch.
+   Uses !important deliberately: later slices append their own animation rules
+   to this stylesheet, and equal-specificity rules resolve by source order, not
+   by which @media block appears first. A per-rule opt-out silently stops
+   covering animations added below it. Shortening the duration rather than
+   setting `animation:none` lets forwards-filling animations settle on their
+   end state (traces drawn, hero content visible) instead of their start. */
 @media (prefers-reduced-motion: reduce){
-  .in,.rv{animation:none;opacity:1;transform:none}
-  .track{animation:none}
+  .page *,.page *::before,.page *::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+  .in,.rv{opacity:1 !important;transform:none !important}
 }
 
 /* ---------- header ---------- */
