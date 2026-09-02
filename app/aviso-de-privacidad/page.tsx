@@ -94,8 +94,9 @@ export default function AvisoDePrivacidadPage() {
           <p>
             Para las finalidades descritas en este aviso, MXPCB puede
             recabar los siguientes datos personales cuando usted nos
-            contacta de forma voluntaria a través de nuestro correo
-            electrónico o número telefónico:
+            contacta de forma voluntaria a través del formulario de
+            contacto de este sitio, de nuestro correo electrónico o de
+            nuestro número telefónico:
           </p>
           <ul>
             <li>Nombre completo.</li>
@@ -108,10 +109,25 @@ export default function AvisoDePrivacidadPage() {
               Información relacionada con el proyecto, servicio o
               cotización que solicita.
             </li>
+            <li>
+              Archivos que usted decida adjuntar de forma voluntaria en el
+              formulario de contacto (por ejemplo, archivos Gerber, listas
+              de materiales o documentación técnica del proyecto), en
+              formato .zip y con un tamaño máximo de 4 MB.
+            </li>
           </ul>
           <p>
             MXPCB <strong>no recaba datos personales sensibles</strong> a
             través de este sitio.
+          </p>
+          <p>
+            Los archivos que usted adjunte pueden contener información
+            técnica o comercial confidencial, propia o de sus clientes.
+            MXPCB los trata con carácter confidencial, los utiliza
+            únicamente para atender y cotizar la solicitud correspondiente,
+            y no los divulga a terceros distintos de los encargados
+            señalados en la sección 4, salvo que exista una obligación
+            legal.
           </p>
           <p>
             Adicionalmente, cuando usted navega en este sitio se recaban de
@@ -173,6 +189,25 @@ export default function AvisoDePrivacidadPage() {
             obligados a guardar confidencialidad conforme a la normativa
             aplicable.
           </p>
+          <p>
+            Para el envío y la protección del formulario de contacto, MXPCB
+            recurre a los siguientes encargados, que tratan datos por
+            cuenta de MXPCB conforme a sus propias políticas de privacidad:
+          </p>
+          <ul>
+            <li>
+              <strong>Cloudflare, Inc.</strong> — servicio Turnstile,
+              utilizado para verificar que el formulario sea enviado por
+              una persona y no por un sistema automatizado. Trata la
+              dirección IP y señales técnicas del navegador.
+            </li>
+            <li>
+              <strong>Resend</strong> — servicio de entrega de correo
+              electrónico, mediante el cual se transmite a MXPCB el
+              contenido del formulario, incluidos los archivos que usted
+              adjunte.
+            </li>
+          </ul>
           <p>
             Para las finalidades de medición y publicidad descritas en la
             sección 7, los datos recabados automáticamente son tratados por
@@ -294,6 +329,15 @@ export default function AvisoDePrivacidadPage() {
               </a>
             </li>
           </ul>
+          <p>
+            Adicionalmente, el servicio Turnstile de Cloudflare instala
+            cookies de carácter estrictamente funcional (
+            <code>__cf_bm</code> y <code>_cfuvid</code>) cuyo único fin es
+            distinguir solicitudes legítimas de tráfico automatizado y
+            proteger el formulario de contacto. Estas cookies{" "}
+            <strong>no se utilizan con fines publicitarios ni de
+            perfilado</strong>.
+          </p>
           <p>
             Asimismo, la mayoría de los navegadores permiten bloquear o
             eliminar cookies desde su configuración. La desactivación de

@@ -468,6 +468,9 @@ h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.1em;height:.14
 .legal-copy h2{font-size:21px;margin:40px 0 14px;padding-bottom:10px;
   border-bottom:1px solid var(--line)}
 .legal-copy p{margin-bottom:14px;font-size:15.5px;line-height:1.7}
+.legal-copy code{font-family:var(--font-mono),ui-monospace,Menlo,monospace;
+  font-size:13.5px;background:var(--tint);color:var(--accent-ink);
+  padding:1px 5px;border-radius:2px}
 .legal-copy ul{margin:0 0 14px 22px}
 .legal-copy li{margin-bottom:7px;font-size:15.5px;line-height:1.7}
 .legal-copy strong{font-weight:600}
