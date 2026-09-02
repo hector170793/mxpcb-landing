@@ -382,6 +382,7 @@ h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.1em;height:.14
 .file-clear:hover{color:var(--accent-ink,#AD4500);border-color:var(--accent-ink,#AD4500)}
 .file-clear:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
 .field-hint{margin-top:2px;font-size:13px;color:var(--muted)}
+.label-optional{font-weight:400;color:var(--muted)}
 
 /* ---------- footer ---------- */
 .ftr{background:var(--navy);color:rgba(255,255,255,.72);padding:56px 0 40px;font-size:14px}

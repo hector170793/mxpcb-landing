@@ -9,7 +9,11 @@ import {
   type ChangeEvent,
 } from "react";
 import Script from "next/script";
-import { submitContact, type ContactState } from "../_actions/contact";
+import {
+  submitContact,
+  type ContactState,
+  type ContactFieldName,
+} from "../_actions/contact";
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 const INITIAL_STATE: ContactState = { status: "idle" };
@@ -33,7 +37,10 @@ const FALLBACK_CHANNELS = (
   </>
 );
 
-function fieldError(state: ContactState, name: "nombre" | "correo" | "comentarios") {
+// Takes ContactFieldName rather than a local copy of the union: the literal
+// list here had already drifted from the action's, so adding a field failed
+// the type check instead of just working.
+function fieldError(state: ContactState, name: ContactFieldName) {
   return state.status === "error" ? state.fieldErrors?.[name] : undefined;
 }
 
@@ -57,6 +64,7 @@ export function ContactForm() {
   );
 
   const nombreError = fieldError(state, "nombre");
+  const empresaError = fieldError(state, "empresa");
   const correoError = fieldError(state, "correo");
   const comentariosError = fieldError(state, "comentarios");
   const consentError = state.status === "error" ? state.fieldErrors?.consent : undefined;
@@ -148,6 +156,26 @@ export function ContactForm() {
           {nombreError ? (
             <p className="field-error" id="nombre-error">
               {nombreError}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="field">
+          <label htmlFor="empresa">
+            Empresa <span className="label-optional">(opcional)</span>
+          </label>
+          <input
+            id="empresa"
+            name="empresa"
+            type="text"
+            autoComplete="organization"
+            maxLength={120}
+            aria-invalid={empresaError ? "true" : undefined}
+            aria-describedby={empresaError ? "empresa-error" : undefined}
+          />
+          {empresaError ? (
+            <p className="field-error" id="empresa-error">
+              {empresaError}
             </p>
           ) : null}
         </div>
