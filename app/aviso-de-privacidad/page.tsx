@@ -137,6 +137,15 @@ export default function AvisoDePrivacidadPage() {
             visitadas e información sobre su interacción con el sitio y con
             nuestros anuncios.
           </p>
+          <p>
+            Asimismo, este sitio utiliza herramientas de medición de
+            audiencia y de rendimiento que{" "}
+            <strong>no instalan cookies</strong> ni identifican
+            personalmente al visitante, y que recaban únicamente datos
+            agregados de navegación y desempeño: páginas visitadas, tipo de
+            dispositivo, país aproximado y métricas de velocidad de carga
+            (ver la sección 4).
+          </p>
 
           <h2>3. Finalidades del tratamiento</h2>
           <p>
@@ -206,6 +215,12 @@ export default function AvisoDePrivacidadPage() {
               electrónico, mediante el cual se transmite a MXPCB el
               contenido del formulario, incluidos los archivos que usted
               adjunte.
+            </li>
+            <li>
+              <strong>Vercel Inc.</strong> — proveedor de alojamiento del
+              sitio y de los servicios Vercel Analytics y Speed Insights,
+              que miden audiencia y rendimiento mediante datos agregados,
+              sin cookies y sin identificar personalmente al visitante.
             </li>
           </ul>
           <p>

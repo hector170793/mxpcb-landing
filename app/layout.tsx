@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Archivo, JetBrains_Mono } from "next/font/google";
 import { GoogleTagManager } from "@next/third-parties/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { BUSINESS, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "./_data/site";
 import "./globals.css";
 
@@ -77,6 +79,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
         />
         {children}
+        {/* Both are cookieless and collect no personally identifying data, so
+            they need no consent gate -- unlike GTM above. They are declared in
+            section 4 of the aviso de privacidad all the same, because the
+            notice should name every processor that receives traffic data. */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
